@@ -28,8 +28,12 @@ plt.scatter(index,mass_BH)
 plt.xlabel("Index")
 plt.ylabel("Mass of Black Hole")
 
+#more info about matplotlib here: http://matplotlib.org/
+
 #Uncomment this to save a version of your plot whenever you are happy with what you're seeing. It will write over previous versions, so make sure you change the name if you want to save a new plot.
 #plt.savefig("plot.pdf")
 
 #This shows you what your plot looks like in a temporary window. The window will stay open until you close it, but the plot will not be saved on your computer.
 plt.show()
+
+

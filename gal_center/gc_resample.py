@@ -16,29 +16,49 @@ plt.ylabel("Semi-major Axis (AU)")
 plt.show()
 
 
-plt.scatter(period**2.,a_AU**3) #but what are the uncertainties?
+plt.scatter(period**2.,a_AU**3,color='black') #but what are the uncertainties?
 plt.xlabel("Period^2 (years)")
 plt.ylabel("Semi-major Axis^3 (AU)")
 plt.show()
 
+from scipy.optimize import curve_fit
+import scipy.odr
+
+def f(x, A, B): # this is your 'straight line' y=f(x)
+    return A*x + B
+
+A,B = curve_fit(f,period**2.,a_AU**3)[0] # fit, xdata, ydata
+plt.plot(period**2.,f(period**2.,A,B),color='black')
 
 #import module for generating random numbers (https://docs.python.org/2/library/random.html)
 import random #it's already in numpy so could also do: np.random
 
-n_samples = 10 #number of times to repeat the resampling
-mu = mass_BH #mean value of the gaussian function (measured value)
-sigma =  mass_BH_err #sigma of the gaussian function (uncertainty)
+mux = period #mean value of the gaussian function (array of measured values)
+sigmax =  period_err #sigma of the gaussian function (array of uncertainties)
 
-newdata=np.zeros((n_samples))
-print(newdata)
+muy = a_AU #mean value of the gaussian function (array of measured values)
+sigmay =  a_AU_err #sigma of the gaussian function (array of uncertainties)
 
-rs = 0
+n_samples = 100 #number of times to repeat the resampling
+newxdata=np.zeros((len(mux),n_samples))
+newydata=np.zeros((len(muy),n_samples))
+A=np.zeros(n_samples)
+B=np.zeros(n_samples)
+#print(newxdata)
+#print(newydata)
+
+rs = 0 # rs for "resample"
 while rs < n_samples:
-    print(rs)
-    newdata[rs] = random.normal(mu[0],sigma[0])
-    print(newdata[rs])
-    plt.scatter(a_AU[0],newdata[rs])
+    # print(rs)
+    newxdata[:,rs] = random.gauss(mux,sigmax) #resample in x
+    newydata[:,rs] = random.gauss(muy,sigmay) #resample in y
+    # print(newxdata[:,rs])
+    # print(newxdata[:,rs])
+    A[rs],B[rs] = curve_fit(f,newxdata[:,rs]**2.,newydata[:,rs]**3)[0] # fit, xdata, ydata
+    plt.scatter(newxdata[:,rs]**2.,newydata[:,rs]**3.,color='red')
+    plt.plot(newxdata[:,rs]**2.,f(newxdata[:,rs]**2.,A[rs],B[rs]),color='green')
     rs+=1
 
 plt.show()
 
+print(np.mean(A),np.std(A))

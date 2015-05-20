@@ -16,7 +16,10 @@ plt.ylabel("Semi-major Axis (AU)")
 plt.show()
 
 
-plt.scatter(period**2.,a_AU**3,color='black') #but what are the uncertainties?
+plt.scatter(period**2.,a_AU**3,color='black') # but what are the uncertainties?
+p2_err = np.abs(2 * period * period_err) # propogate the errors
+a3_err = np.abs(3 * a_AU**2 * a_AU_err) # propogate the errors
+plt.errorbar(period**2., a_AU**3., xerr=p2_err, yerr=a3_err, marker='.',markersize=.9,linestyle='none',color='black')
 plt.xlabel("Period^2 (years)")
 plt.ylabel("Semi-major Axis^3 (AU)")
 plt.show()
@@ -24,11 +27,11 @@ plt.show()
 from scipy.optimize import curve_fit
 import scipy.odr
 
-def f(x, A, B): # this is your 'straight line' y=f(x)
+def f(x, A, B): #define a 'straight line' y=f(x)=A*x + B function
     return A*x + B
 
-A,B = curve_fit(f,period**2.,a_AU**3)[0] # fit, xdata, ydata
-plt.plot(period**2.,f(period**2.,A,B),color='black')
+A,B = curve_fit(f,period**2.,a_AU**3)[0] # use curve_fit to fit your function using xdata & ydata, reurning A & B
+plt.plot(period**2.,f(period**2.,A,B),color='black') # plot the fit
 
 #import module for generating random numbers (https://docs.python.org/2/library/random.html)
 import random #it's already in numpy so could also do: np.random
@@ -39,7 +42,7 @@ sigmax =  period_err #sigma of the gaussian function (array of uncertainties)
 muy = a_AU #mean value of the gaussian function (array of measured values)
 sigmay =  a_AU_err #sigma of the gaussian function (array of uncertainties)
 
-n_samples = 100 #number of times to repeat the resampling
+n_samples = 10 #number of times to repeat the resampling
 newxdata=np.zeros((len(mux),n_samples))
 newydata=np.zeros((len(muy),n_samples))
 A=np.zeros(n_samples)
@@ -52,8 +55,8 @@ while rs < n_samples:
     # print(rs)
     newxdata[:,rs] = random.gauss(mux,sigmax) #resample in x
     newydata[:,rs] = random.gauss(muy,sigmay) #resample in y
-    # print(newxdata[:,rs])
-    # print(newxdata[:,rs])
+    print(newxdata[3,rs])
+    print(newydata[3,rs])
     A[rs],B[rs] = curve_fit(f,newxdata[:,rs]**2.,newydata[:,rs]**3)[0] # fit, xdata, ydata
     plt.scatter(newxdata[:,rs]**2.,newydata[:,rs]**3.,color='red')
     plt.plot(newxdata[:,rs]**2.,f(newxdata[:,rs]**2.,A[rs],B[rs]),color='green')
@@ -62,3 +65,4 @@ while rs < n_samples:
 plt.show()
 
 print(np.mean(A),np.std(A))
+plt.hist(A, bins=50)

@@ -1,2 +1,6 @@
+.gitignore
 *.py~
 *.pyc
+*~
+*.ipynb_checkpoints*
+craters/robbins_volunteer_ids.png

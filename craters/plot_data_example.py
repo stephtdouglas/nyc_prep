@@ -1,6 +1,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
+import astropy.io.ascii as at
 
 def read_binned_craters():
     """read in cratering data and return crater_diameters, crater_count, count_error."""
